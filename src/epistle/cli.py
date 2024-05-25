@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import time
 
 from epistle import notmuch
@@ -6,6 +7,11 @@ from epistle import notmuch
 
 def watch(args):
     nm = notmuch.Notmuch()
+    if nm.locked:
+        print("notmuch locked, waiting...")
+        nm.wait_for_lock_state(False)
+        print("\a")
+
     unread_messages = nm.unread_messages()
 
     seen_ids = set()
@@ -15,20 +21,22 @@ def watch(args):
             print(message.line)
             seen_ids.add(message.id)
 
-    new_messages = False
+    new_messages = []
 
-    print()
-    print("Waiting for new messages...")
     print()
 
     while not new_messages:
-        unread_messages = nm.unread_messages()
-        for message in unread_messages:
-            if message.id not in seen_ids and not message.in_trash:
-                print(message.line)
-                new_messages = True
-        if not new_messages:
-           time.sleep(10)
+        print(f"\r{datetime.datetime.now()} Waiting for sync to start ", end="")
+        nm.wait_for_lock_state(True)
+        print(f"\r{datetime.datetime.now()} Waiting for sync to finish", end="")
+        nm.wait_for_lock_state(False)
+        print(f"\r{datetime.datetime.now()} ...checking               ", end="")
+
+        new_messages = [message for message in nm.unread_messages() if message.id not in seen_ids and not message.in_trash]
+
+    print("\a")
+    for message in new_messages:
+        print(message.line)
 
 
 def main():

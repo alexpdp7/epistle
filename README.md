@@ -2,7 +2,7 @@
 
 My [notmuch](https://notmuchmail.org/) frontend.
 
-## Requires
+## Requirements
 
 You must have `notmuch` configured for emails in maildir format.
 
@@ -15,6 +15,9 @@ path=/home/user/Mail
 ```
 
 , you should have directories like `/home/user/Mail/example@example.com`.
+
+`epistle` watches a file named `.lock` in your mail folder.
+Your sync process **MUST** create this file when beginning to sync, and remove the file at the end.
 
 ## Implemented features
 

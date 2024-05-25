@@ -5,6 +5,7 @@ import itertools
 import json
 import pathlib
 import subprocess
+import time
 
 
 class Notmuch:
@@ -17,6 +18,14 @@ class Notmuch:
                 encoding="utf8",
             ).stdout.strip()
         )
+
+    @property
+    def locked(self):
+        return (self.database_path / ".lock").exists()
+
+    def wait_for_lock_state(self, state):
+        while self.locked != state:
+            time.sleep(10)
 
     def unread_messages(self, *args):
         return map(
