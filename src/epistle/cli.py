@@ -46,7 +46,7 @@ def watch(args):
 def read(args):
     nm = notmuch.Notmuch()
     query = nm.inboxes_query()
-    messages = list(nm.get_messages(query, True))
+    messages = sorted(list(nm.get_messages(query, True)), key=lambda m: m.timestamp)
     for i, message in enumerate(messages):
         print(i + 1, message.line)
 
