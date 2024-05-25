@@ -1,6 +1,6 @@
 import argparse
 import datetime
-import time
+import re
 
 from epistle import notmuch
 
@@ -39,12 +39,29 @@ def watch(args):
         print(message.line)
 
 
+def read(args):
+    nm = notmuch.Notmuch()
+    query = nm.inboxes_query()
+    messages = list(nm.get_messages(query, True))
+    for i, message in enumerate(messages):
+        print(i+1, message.line)
+
+    command = input("> ")
+
+    if re.match(r"\d+$", command):
+        index = int(command) - 1
+        message = messages[index]
+        print(message.as_text())
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
 
     subparser = subparsers.add_parser("watch")
     subparser.set_defaults(func=watch)
+
+    subparser = subparsers.add_parser("read")
+    subparser.set_defaults(func=read)
 
     args = parser.parse_args()
     args.func(args)

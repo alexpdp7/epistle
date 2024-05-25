@@ -23,11 +23,26 @@ class Notmuch:
     def locked(self):
         return (self.database_path / ".lock").exists()
 
+    @property
+    def accounts(self):
+        accounts = set()
+        for p in self.database_path.iterdir():
+            candidate = p.parts[-1]
+            if "@" in candidate:
+                accounts.add(candidate)
+        return accounts
+
     def wait_for_lock_state(self, state):
         while self.locked != state:
             time.sleep(10)
 
-    def unread_messages(self, *args):
+    def inboxes_query(self):
+        return " or ".join(map(get_inbox_query, self.accounts))
+
+    def unread_messages(self):
+        return self.get_messages("tag:unread", False)
+
+    def get_messages(self, query, entire_thread):
         return map(
             self.message,
             get_dicts(
@@ -37,8 +52,10 @@ class Notmuch:
                             "notmuch",
                             "show",
                             "--format=json",
-                            "--entire-thread=false",
-                            "tag:unread",
+                            f"--entire-thread={str(entire_thread).lower()}",
+                            "--body=true",
+                            "--include-html",
+                            query,
                         ],
                         check=True,
                         stdout=subprocess.PIPE,
@@ -88,11 +105,11 @@ class NotmuchMessage:
 
     @property
     def is_gmail(self):
-        return self.account.endswith("@gmail.com")
+        return is_gmail(self.account)
 
     @property
     def is_yahoo(self):
-        return "@yahoo" in self.account
+        return is_yahoo(self.account)
 
     @property
     def folders(self):
@@ -132,6 +149,12 @@ class NotmuchMessage:
     def from_(self):
         return self.d["headers"]["From"]
 
+    def as_text(self):
+        text = ""
+        for header, value in self.d["headers"].items():
+            text += f"{header}: {value}\n"
+        return text
+
 
 def get_dicts(x):
     if x is None:
@@ -143,3 +166,22 @@ def get_dicts(x):
             return list(itertools.chain(*[get_dicts(y) for y in x]))
         case _:
             assert True, f"unexpected {type(x)}"
+
+
+def is_gmail(account):
+    return account.endswith("@gmail.com")
+
+
+def is_yahoo(account):
+    return "@yahoo" in account
+
+
+def get_inbox_query(account):
+    if is_gmail(account):
+        inbox_name = "INBOX"
+    elif is_yahoo(account):
+        inbox_name = "Inbox"
+    else:
+        assert False, f"unknown account type {account}"
+
+    return f"path:{account}/{inbox_name}/**"
