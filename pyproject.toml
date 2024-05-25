@@ -1,0 +1,26 @@
+[project]
+name = "epistle"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "alex", email = "alex@pdp7.net" }
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/epistle"]
+
+[project.scripts]
+epistle = 'epistle.cli:main'
