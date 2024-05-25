@@ -32,7 +32,11 @@ def watch(args):
         nm.wait_for_lock_state(False)
         print(f"\r{datetime.datetime.now()} ...checking               ", end="")
 
-        new_messages = [message for message in nm.unread_messages() if message.id not in seen_ids and not message.in_trash]
+        new_messages = [
+            message
+            for message in nm.unread_messages()
+            if message.id not in seen_ids and not message.in_trash
+        ]
 
     print("\a")
     for message in new_messages:
@@ -44,7 +48,7 @@ def read(args):
     query = nm.inboxes_query()
     messages = list(nm.get_messages(query, True))
     for i, message in enumerate(messages):
-        print(i+1, message.line)
+        print(i + 1, message.line)
 
     command = input("> ")
 
@@ -52,6 +56,7 @@ def read(args):
         index = int(command) - 1
         message = messages[index]
         print(message.as_text())
+
 
 def main():
     parser = argparse.ArgumentParser()
