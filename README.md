@@ -33,6 +33,16 @@ If your terminal notifies you when commands finish, then you receive a new notif
 
 If you run `epistle watch` over `ssh`, then use `ssh -tt ... epistle watch` to ensure proper behavior.
 
+### Reading mail
+
+```
+epistle read
+```
+
+* `list` lists emails (currently, only the inbox).
+* `read n` or `n` reads the nth message (does not mark as read yet).
+* `quit` quits.
+
 ### GMail support
 
 `epistle` is aware of some GMail quirks, like tagged emails being duplicated to the "All Mail" folder.
