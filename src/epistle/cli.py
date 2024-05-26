@@ -1,4 +1,5 @@
 import argparse
+import cmd
 import datetime
 import re
 
@@ -43,19 +44,43 @@ def watch(args):
         print(message.line)
 
 
-def read(args):
-    nm = notmuch.Notmuch()
-    query = nm.inboxes_query()
-    messages = sorted(list(nm.get_messages(query, True)), key=lambda m: m.timestamp)
-    for i, message in enumerate(messages):
-        print(i + 1, message.line)
+class Cmd(cmd.Cmd):
+    prompt = "(epistle) "
 
-    command = input("> ")
+    def __init__(self, *args, **kwargs):
+        self.nm = notmuch.Notmuch()
+        self.do_inbox(None)
+        self.do_list(None)
+        super().__init__(*args, **kwargs)
 
-    if re.match(r"\d+$", command):
-        index = int(command) - 1
-        message = messages[index]
+    def do_list(self, _arg):
+        self.messages = sorted(
+            list(self.nm.get_messages(self.query, True)), key=lambda m: m.timestamp
+        )
+        for i, message in enumerate(self.messages):
+            print(i + 1, message.line)
+
+    def do_read(self, arg):
+        assert re.match(r"\d+$", arg), f"{arg} should be a number"
+        index = int(arg) - 1
+        message = self.messages[index]
         print(message.as_text())
+
+    def do_quit(self, _arg):
+        return True
+
+    def do_inbox(self, _arg):
+        self.query = self.nm.inboxes_query()
+
+    def default(self, line):
+        if re.match(r"\d+$", line):
+            self.do_read(line)
+            return
+        assert False, f"Unknown command {line}"
+
+
+def read(args):
+    Cmd().cmdloop()
 
 
 def main():
