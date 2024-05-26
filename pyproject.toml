@@ -24,3 +24,7 @@ packages = ["src/epistle"]
 
 [project.scripts]
 epistle = 'epistle.cli:main'
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "B011", "PT015", "S101", "ANN", "DTZ006", "S607", "S603", "T201", "DTZ005"]

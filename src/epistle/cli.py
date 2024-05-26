@@ -6,11 +6,11 @@ import re
 from epistle import notmuch
 
 
-def watch(args):
+def watch(_args):
     nm = notmuch.Notmuch()
     if nm.locked:
         print("notmuch locked, waiting...")
-        nm.wait_for_lock_state(False)
+        nm.wait_for_lock_state(state=False)
         print("\a")
 
     unread_messages = nm.unread_messages()
@@ -28,9 +28,9 @@ def watch(args):
 
     while not new_messages:
         print(f"\r{datetime.datetime.now()} Waiting for sync to start ", end="")
-        nm.wait_for_lock_state(True)
+        nm.wait_for_lock_state(state=True)
         print(f"\r{datetime.datetime.now()} Waiting for sync to finish", end="")
-        nm.wait_for_lock_state(False)
+        nm.wait_for_lock_state(state=False)
         print(f"\r{datetime.datetime.now()} ...checking               ", end="")
 
         new_messages = [
@@ -55,7 +55,8 @@ class Cmd(cmd.Cmd):
 
     def do_list(self, _arg):
         self.messages = sorted(
-            list(self.nm.get_messages(self.query, True)), key=lambda m: m.timestamp
+            self.nm.get_messages(self.query, entire_thread=True),
+            key=lambda m: m.timestamp,
         )
         for i, message in enumerate(self.messages):
             print(i + 1, message.line)
@@ -79,7 +80,7 @@ class Cmd(cmd.Cmd):
         assert False, f"Unknown command {line}"
 
 
-def read(args):
+def read(_args):
     Cmd().cmdloop()
 
 

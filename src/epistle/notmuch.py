@@ -16,7 +16,7 @@ class Notmuch:
                 check=True,
                 stdout=subprocess.PIPE,
                 encoding="utf8",
-            ).stdout.strip()
+            ).stdout.strip(),
         )
 
     @property
@@ -40,7 +40,7 @@ class Notmuch:
         return " or ".join(map(get_inbox_query, self.accounts))
 
     def unread_messages(self):
-        return self.get_messages("tag:unread", False)
+        return self.get_messages("tag:unread", entire_thread=False)
 
     def get_messages(self, query, entire_thread):
         return map(
@@ -60,8 +60,8 @@ class Notmuch:
                         check=True,
                         stdout=subprocess.PIPE,
                         encoding="utf8",
-                    ).stdout
-                )
+                    ).stdout,
+                ),
             ),
         )
 
@@ -92,7 +92,7 @@ class NotmuchMessage:
 
     @property
     def account(self) -> str:
-        accounts = set([f.parts[0] for f in self._relative_filenames])
+        accounts = {f.parts[0] for f in self._relative_filenames}
         assert len(accounts) == 1, f"multiple accounts {accounts}"
         return accounts.pop()
 
@@ -113,7 +113,7 @@ class NotmuchMessage:
 
     @property
     def folders(self):
-        return set([f.parts[1:-2] for f in self._relative_filenames])
+        return {f.parts[1:-2] for f in self._relative_filenames}
 
     @property
     def friendly_folders(self):
@@ -153,7 +153,8 @@ class NotmuchMessage:
         text = ""
         for header, value in self.d["headers"].items():
             text += f"{header}: {value}\n"
-        for body in self.d["body"]:
+        assert len(self.d["body"]) > 0, "empty body"
+        for body in self.d["body"]:  # noqa: RET503, this for should never finish
             match body["content-type"]:
                 case "multipart/alternative":
                     types_to_content = {
@@ -165,6 +166,8 @@ class NotmuchMessage:
                         text += plain
                         return text
                     assert False, f"Only have {types_to_content.keys()}"
+                case _:
+                    assert False, f"unknown content-type {body['content-type']}"
 
 
 def get_dicts(x):
@@ -176,7 +179,7 @@ def get_dicts(x):
         case builtins.list:
             return list(itertools.chain(*[get_dicts(y) for y in x]))
         case _:
-            assert True, f"unexpected {type(x)}"
+            assert False, f"unexpected {type(x)}"
 
 
 def is_gmail(account):
