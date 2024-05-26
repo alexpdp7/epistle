@@ -153,7 +153,18 @@ class NotmuchMessage:
         text = ""
         for header, value in self.d["headers"].items():
             text += f"{header}: {value}\n"
-        return text
+        for body in self.d["body"]:
+            match body["content-type"]:
+                case "multipart/alternative":
+                    types_to_content = {
+                        content["content-type"]: content["content"]
+                        for content in body["content"]
+                    }
+                    plain = types_to_content.get("text/plain")
+                    if plain:
+                        text += plain
+                        return text
+                    assert False, f"Only have {types_to_content.keys()}"
 
 
 def get_dicts(x):
