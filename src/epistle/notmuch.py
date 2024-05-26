@@ -1,11 +1,11 @@
 import builtins
-from collections import abc
 import datetime
 import itertools
 import json
 import pathlib
 import subprocess
 import time
+from collections import abc
 
 
 class Notmuch:
