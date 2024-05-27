@@ -153,31 +153,8 @@ class NotmuchMessage:
         text = ""
         for header, value in self.d["headers"].items():
             text += f"{header}: {value}\n"
-        assert len(self.d["body"]) > 0, "empty body"
-        for body in self.d["body"]:  # noqa: RET503, this for should never finish
-            match body["content-type"]:
-                case "multipart/alternative" | "multipart/mixed":
-                    types_to_content = {
-                        content["content-type"]: content.get("content")
-                        for content in body["content"]
-                    }
-                    plain = types_to_content.get("text/plain")
-                    if plain:
-                        text += plain
-                        return text
-                    html = types_to_content.get("text/html")
-                    if html:
-                        text += subprocess.run(
-                            ["lynx", "-dump", "-stdin"],
-                            stdout=subprocess.PIPE,
-                            input=html,
-                            check=True,
-                            encoding="utf8",
-                        ).stdout
-                        return text
-                    assert False, f"Only have {types_to_content.keys()}"
-                case _:
-                    assert False, f"unknown content-type {body['content-type']}"
+        text += bodies_to_text(self.d["body"])
+        return text
 
 
 def get_dicts(x):
@@ -209,3 +186,38 @@ def get_inbox_query(account):
         assert False, f"unknown account type {account}"
 
     return f"path:{account}/{inbox_name}/**"
+
+
+def bodies_to_text(bodies):
+    assert len(bodies) > 0, "empty body"
+    return "\n".join(body_to_text(body) for body in bodies)
+
+
+def body_to_text(body):
+    match body["content-type"]:
+        case "multipart/alternative" | "multipart/mixed" | "multipart/related":
+            types_to_content = {
+                content["content-type"]: content for content in body["content"]
+            }
+            plain = types_to_content.get("text/plain")
+            if plain:
+                return body_to_text(plain)
+            html = types_to_content.get("text/html")
+            if html:
+                return body_to_text(html)
+            # HACK: nested multiparts, let's see if this is enough...
+            for content in body["content"]:
+                return body_to_text(content)
+            assert False, f"Only have {types_to_content.keys()}"
+        case "text/plain":
+            return body["content"]
+        case "text/html":
+            return subprocess.run(
+                ["lynx", "-dump", "-stdin"],
+                stdout=subprocess.PIPE,
+                input=body["content"],
+                check=True,
+                encoding="utf8",
+            ).stdout
+        case _:
+            assert False, f"unknown content-type {body['content-type']}"
