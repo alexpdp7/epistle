@@ -19,7 +19,7 @@ def watch(_args):
 
     for message in sorted(unread_messages, key=lambda m: m.timestamp):
         if not message.in_trash:
-            print(message.line)[0 : terminal.get_columns()]
+            print(message.line[0 : terminal.get_columns()])
             seen_ids.add(message.id)
 
     new_messages = []
