@@ -156,14 +156,24 @@ class NotmuchMessage:
         assert len(self.d["body"]) > 0, "empty body"
         for body in self.d["body"]:  # noqa: RET503, this for should never finish
             match body["content-type"]:
-                case "multipart/alternative":
+                case "multipart/alternative" | "multipart/mixed":
                     types_to_content = {
-                        content["content-type"]: content["content"]
+                        content["content-type"]: content.get("content")
                         for content in body["content"]
                     }
                     plain = types_to_content.get("text/plain")
                     if plain:
                         text += plain
+                        return text
+                    html = types_to_content.get("text/html")
+                    if html:
+                        text += subprocess.run(
+                            ["lynx", "-dump", "-stdin"],
+                            stdout=subprocess.PIPE,
+                            input=html,
+                            check=True,
+                            encoding="utf8",
+                        ).stdout
                         return text
                     assert False, f"Only have {types_to_content.keys()}"
                 case _:
