@@ -3,7 +3,7 @@ import cmd
 import datetime
 import re
 
-from epistle import notmuch
+from epistle import notmuch, terminal
 
 
 def watch(_args):
@@ -19,7 +19,7 @@ def watch(_args):
 
     for message in sorted(unread_messages, key=lambda m: m.timestamp):
         if not message.in_trash:
-            print(message.line)
+            print(message.line)[0 : terminal.get_columns()]
             seen_ids.add(message.id)
 
     new_messages = []
@@ -59,7 +59,7 @@ class Cmd(cmd.Cmd):
             key=lambda m: m.timestamp,
         )
         for i, message in enumerate(self.messages):
-            print(i + 1, message.line)
+            print(f"{i + 1} {message.line}"[0 : terminal.get_columns()])
 
     def do_read(self, arg):
         assert re.match(r"\d+$", arg), f"{arg} should be a number"
