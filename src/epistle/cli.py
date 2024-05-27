@@ -73,6 +73,10 @@ class Cmd(cmd.Cmd):
     def do_inbox(self, _arg):
         self.query = self.nm.inboxes_query()
 
+    def do_EOF(self, arg):  # noqa: N802
+        print()
+        return self.do_quit(arg)
+
     def default(self, line):
         if re.match(r"\d+$", line):
             self.do_read(line)
