@@ -36,6 +36,9 @@ class Notmuch:
         while self.locked != state:
             time.sleep(10)
 
+    def run_new(self):
+        subprocess.run(["notmuch", "new", "--quiet"], check=True)
+
     def inboxes_query(self):
         return " or ".join(map(get_inbox_query, self.accounts))
 
@@ -43,6 +46,7 @@ class Notmuch:
         return self.get_messages("tag:unread", entire_thread=False)
 
     def get_messages(self, query, entire_thread):
+        self.run_new()
         return map(
             self.message,
             get_dicts(

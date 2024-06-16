@@ -8,10 +8,6 @@ from epistle import notmuch, terminal
 
 def watch(_args):
     nm = notmuch.Notmuch()
-    if nm.locked:
-        print("notmuch locked, waiting...")
-        nm.wait_for_lock_state(state=False)
-        print("\a")
 
     unread_messages = nm.unread_messages()
 
