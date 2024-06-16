@@ -58,10 +58,13 @@ class Cmd(cmd.Cmd):
             print(f"{i + 1} {message.line}"[0 : terminal.get_columns()])
 
     def do_read(self, arg):
-        assert re.match(r"\d+$", arg), f"{arg} should be a number"
-        index = int(arg) - 1
-        message = self.messages[index]
+        message = self._get_message_from_arg(arg)
         print(message.as_text())
+
+    def do_archive(self, arg):
+        message = self._get_message_from_arg(arg)
+        message.archive()
+        self.do_list(None)
 
     def do_quit(self, _arg):
         return True
@@ -79,6 +82,10 @@ class Cmd(cmd.Cmd):
             return
         assert False, f"Unknown command {line}"
 
+    def _get_message_from_arg(self, arg):
+        assert re.match(r"\d+$", arg), f"{arg} should be a number"
+        index = int(arg) - 1
+        return self.messages[index]
 
 def read(_args):
     Cmd().cmdloop()
