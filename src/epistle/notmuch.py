@@ -184,7 +184,12 @@ class NotmuchMessage:
             return
         if self.is_yahoo:
             f = self.notmuch.database_path / self._relative_filename
-            archive = self.notmuch.database_path / self.account / get_archive_name(self.account) / "cur"
+            archive = (
+                self.notmuch.database_path
+                / self.account
+                / get_archive_name(self.account)
+                / "cur"
+            )
             # parts after the comma are added by mbsync, remove them so it does not get confused
             # add :2,S to mark as read
             shutil.move(f, archive / (f.name.split(",")[0] + ":2,S"))
