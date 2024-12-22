@@ -169,6 +169,7 @@ class NotmuchMessage:
 
     def archive(self):
         if self.is_gmail:
+            # TODO: mark as read; see Yahoo implementation
             for rf in self._relative_filenames:
                 f = self.notmuch.database_path / rf
                 folder = relative_filename_to_folder(rf)
