@@ -96,6 +96,12 @@ class NotmuchMessage:
         return [f.relative_to(self.notmuch.database_path) for f in self._filenames]
 
     @property
+    def _relative_filename(self) -> pathlib.Path:
+        rfs = self._relative_filenames
+        assert len(rfs) == 1
+        return rfs[0]
+
+    @property
     def account(self) -> str:
         accounts = {f.parts[0] for f in self._relative_filenames}
         assert len(accounts) == 1, f"multiple accounts {accounts}"
@@ -176,6 +182,13 @@ class NotmuchMessage:
                         shutil.copy(f, af)
                         f.unlink()
             return
+        if self.is_yahoo:
+            f = self.notmuch.database_path / self._relative_filename
+            archive = self.notmuch.database_path / self.account / get_archive_name(self.account) / "cur"
+            # parts after the comma are added by mbsync, remove them so it does not get confused
+            # add :2,S to mark as read
+            shutil.move(f, archive / (f.name.split(",")[0] + ":2,S"))
+            return
 
         assert False, f"unknown account type {self.account}"
 
@@ -215,6 +228,14 @@ def get_inbox_name(account):
         inbox_name = "INBOX"
     elif is_yahoo(account):
         inbox_name = "Inbox"
+    else:
+        assert False, f"unknown account type {account}"
+    return inbox_name
+
+
+def get_archive_name(account):
+    if is_yahoo(account):
+        inbox_name = "Archive"
     else:
         assert False, f"unknown account type {account}"
     return inbox_name
