@@ -87,6 +87,7 @@ class Cmd(cmd.Cmd):
         index = int(arg) - 1
         return self.messages[index]
 
+
 def read(_args):
     Cmd().cmdloop()
 

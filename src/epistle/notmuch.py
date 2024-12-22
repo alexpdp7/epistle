@@ -179,6 +179,7 @@ class NotmuchMessage:
 
         assert False, f"unknown account type {self.account}"
 
+
 def get_dicts(x):
     if x is None:
         return []
@@ -217,6 +218,7 @@ def get_inbox_name(account):
     else:
         assert False, f"unknown account type {account}"
     return inbox_name
+
 
 def bodies_to_text(bodies):
     assert len(bodies) > 0, "empty body"
