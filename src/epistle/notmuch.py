@@ -184,19 +184,24 @@ class NotmuchMessage:
                         f.unlink()
             return
         if self.is_yahoo:
-            f = self.notmuch.database_path / self._relative_filename
-            archive = (
-                self.notmuch.database_path
-                / self.account
-                / get_archive_name(self.account)
-                / "cur"
-            )
-            # parts after the comma are added by mbsync, remove them so it does not get confused
-            # add :2,S to mark as read
-            shutil.move(f, archive / (f.name.split(",")[0] + ":2,S"))
+            self._read_and_move(get_archive_name(self.account))
             return
 
         assert False, f"unknown account type {self.account}"
+
+    def delete(self):
+        if self.is_yahoo:
+            self._read_and_move(get_trash_name(self.account))
+            return
+
+        assert False, f"unknown account type {self.account}"
+
+    def _read_and_move(self, folder):
+        f = self.notmuch.database_path / self._relative_filename
+        archive = self.notmuch.database_path / self.account / folder / "cur"
+        # parts after the comma are added by mbsync, remove them so it does not get confused
+        # add :2,S to mark as read
+        shutil.move(f, archive / (f.name.split(",")[0] + ":2,S"))
 
 
 def get_dicts(x):
@@ -242,6 +247,14 @@ def get_inbox_name(account):
 def get_archive_name(account):
     if is_yahoo(account):
         inbox_name = "Archive"
+    else:
+        assert False, f"unknown account type {account}"
+    return inbox_name
+
+
+def get_trash_name(account):
+    if is_yahoo(account):
+        inbox_name = "Trash"
     else:
         assert False, f"unknown account type {account}"
     return inbox_name

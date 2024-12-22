@@ -66,6 +66,11 @@ class Cmd(cmd.Cmd):
         message.archive()
         self.do_list(None)
 
+    def do_delete(self, arg):
+        message = self._get_message_from_arg(arg)
+        message.delete()
+        self.do_list(None)
+
     def do_quit(self, _arg):
         return True
 
