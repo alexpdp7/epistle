@@ -1,10 +1,24 @@
 # epistle
 
-My [notmuch](https://notmuchmail.org/) frontend.
+A terminal mail client with the following properties:
+
+* Supports multiple accounts without additional configuration.
+* Supports GMail quirks without additional configuration.
+* Works on mbsync-synchronized maildirs without additional configuration.
+  If you use mbsync to keep a copy of your email, then you can automatically use epistle on top.
+  mbsync synchronizes changes you make locally, such as deleting and archiving, upstream to your main mail account.
+
+I develop epistle by implementing features as I need them.
+Features are very limited:
+
+* You can read email.
+* You can archive email (on Yahoo and GMail) and delete email (on Yahoo).
+
+epistle uses mbsync and [notmuch](https://notmuchmail.org/) to perform the heavy lifting.
 
 ## Requirements
 
-You must have `notmuch` configured for emails in maildir format.
+You must have `notmuch` configured for emails synchronized with mbsync.
 
 `epistle` expects that the first level of your mail directory corresponds to different email accounts.
 That is, with `~/.notmuch-config`:
@@ -41,6 +55,7 @@ epistle read
 
 * `list` lists emails (currently, only the inbox).
 * `read n` or `n` reads the nth message (does not mark as read yet).
+* `delete n` or `archive n` delete or archive the nth message (marking as read).
 * `quit` quits.
 
 ### GMail support
