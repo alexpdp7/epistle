@@ -60,6 +60,12 @@ class Cmd(cmd.Cmd):
     def do_read(self, arg):
         message = self._get_message_from_arg(arg)
         print(message.as_text())
+        attachments = message.attachments()
+        if attachments:
+            print("Attachments:")
+            print()
+            for attachment in attachments:
+                print(attachment["filename"], attachment["content-length"])
 
     def do_archive(self, arg):
         message = self._get_message_from_arg(arg)

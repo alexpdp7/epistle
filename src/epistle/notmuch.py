@@ -167,6 +167,9 @@ class NotmuchMessage:
         text += bodies_to_text(self.d["body"])
         return text
 
+    def attachments(self):
+        return bodies_to_attachment_index(self.d["body"])
+
     def archive(self):
         if self.is_gmail:
             # TODO: mark as read; see Yahoo implementation
@@ -291,5 +294,24 @@ def body_to_text(body):
                 check=True,
                 encoding="utf8",
             ).stdout
+        case _:
+            assert False, f"unknown content-type {body['content-type']}"
+
+
+def bodies_to_attachment_index(bodies):
+    assert len(bodies) > 0, "empty body"
+    return list(itertools.chain(*(body_to_attachment_index(body) for body in bodies)))
+
+
+def body_to_attachment_index(body):
+    match body["content-type"]:
+        case "multipart/alternative" | "multipart/mixed" | "multipart/related":
+            return [
+                content
+                for content in body["content"]
+                if content.get("content-disposition") == "attachment"
+            ]
+        case "text/plain" | "text/html":
+            return []
         case _:
             assert False, f"unknown content-type {body['content-type']}"
