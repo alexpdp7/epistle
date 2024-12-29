@@ -12,6 +12,7 @@ I develop epistle by implementing features as I need them.
 Features are very limited:
 
 * You can read email.
+* You can run attachments through `libreoffice --cat`.
 * You can archive email (on Yahoo and GMail) and delete email (on Yahoo).
 
 epistle uses mbsync and [notmuch](https://notmuchmail.org/) to perform the heavy lifting.
@@ -55,6 +56,8 @@ epistle read
 
 * `list` lists emails (currently, only the inbox).
 * `read n` or `n` reads the nth message (does not mark as read yet).
+* `cat_attachment n p` displays the `p` attachment of the nth message using `libreoffice --cat`.
+  Reading a message displays the attachment ids.
 * `delete n` or `archive n` delete or archive the nth message (marking as read).
 * `quit` quits.
 

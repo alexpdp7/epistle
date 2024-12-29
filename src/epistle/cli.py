@@ -1,7 +1,10 @@
 import argparse
 import cmd
 import datetime
+import pathlib
 import re
+import subprocess
+import tempfile
 
 from epistle import notmuch, terminal
 
@@ -65,7 +68,24 @@ class Cmd(cmd.Cmd):
             print("Attachments:")
             print()
             for attachment in attachments:
-                print(attachment["filename"], attachment["content-length"])
+                print(
+                    f"<{attachment['id']}>",
+                    attachment["filename"],
+                    attachment["content-length"],
+                )
+
+    def do_cat_attachment(self, args):
+        message, attachment = args.split()
+        message = self._get_message_from_arg(message)
+        attachment = message.attachment(attachment)
+        with tempfile.TemporaryDirectory() as tempdir:
+            tempdir = pathlib.Path(tempdir)
+            attachment_path = tempdir / "attachment"
+            attachment_path.write_bytes(attachment)
+            subprocess.run(
+                ["libreoffice", "--cat", attachment_path],
+                check=True,
+            )
 
     def do_archive(self, arg):
         message = self._get_message_from_arg(arg)

@@ -170,6 +170,19 @@ class NotmuchMessage:
     def attachments(self):
         return bodies_to_attachment_index(self.d["body"])
 
+    def attachment(self, part):
+        return subprocess.run(
+            [
+                "notmuch",
+                "show",
+                "--part",
+                part,
+                f"id:{self.id}",
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+        ).stdout
+
     def archive(self):
         if self.is_gmail:
             # TODO: mark as read; see Yahoo implementation
