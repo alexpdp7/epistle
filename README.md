@@ -12,7 +12,7 @@ I develop epistle by implementing features as I need them.
 Features are very limited:
 
 * You can read email.
-* You can run attachments through `libreoffice --cat`.
+* You can run attachments through `libreoffice --cat` or `pdftotext`.
 * You can archive email (on Yahoo and GMail) and delete email (on Yahoo).
 
 epistle uses mbsync and [notmuch](https://notmuchmail.org/) to perform the heavy lifting.

@@ -77,15 +77,24 @@ class Cmd(cmd.Cmd):
     def do_cat_attachment(self, args):
         message, attachment = args.split()
         message = self._get_message_from_arg(message)
-        attachment = message.attachment(attachment)
+        meta, attachment = message.attachment(attachment)
         with tempfile.TemporaryDirectory() as tempdir:
             tempdir = pathlib.Path(tempdir)
             attachment_path = tempdir / "attachment"
             attachment_path.write_bytes(attachment)
-            subprocess.run(
-                ["libreoffice", "--cat", attachment_path],
-                check=True,
-            )
+            if meta["content-type"] == "application/pdf":
+                subprocess.run(
+                    ["pdftotext", "-layout", "-nopgbrk", attachment_path, "-"],
+                    check=True,
+                )
+                return
+            if meta["filename"].endswith(".docx"):
+                subprocess.run(
+                    ["libreoffice", "--cat", attachment_path],
+                    check=True,
+                )
+                return
+            assert False, f"don't know what to do with {meta}"
 
     def do_archive(self, arg):
         message = self._get_message_from_arg(arg)
