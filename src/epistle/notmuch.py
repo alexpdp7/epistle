@@ -184,7 +184,7 @@ class NotmuchMessage:
                 ],
                 check=True,
                 stdout=subprocess.PIPE,
-            ).stdout
+            ).stdout,
         )
         return (
             meta,
@@ -233,8 +233,8 @@ class NotmuchMessage:
     def _read_and_move(self, folder):
         f = self.notmuch.database_path / self._relative_filename
         archive = self.notmuch.database_path / self.account / folder / "cur"
-        # parts after the comma are added by mbsync, remove them so it does not get confused
-        # add :2,S to mark as read
+        # parts after the comma are added by mbsync, remove them so it does not get
+        # confused, then add :2,S to mark as read
         shutil.move(f, archive / (f.name.split(",")[0] + ":2,S"))
 
 
