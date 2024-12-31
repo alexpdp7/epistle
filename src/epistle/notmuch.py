@@ -207,7 +207,7 @@ class NotmuchMessage:
             for rf in self._relative_filenames:
                 f = self.notmuch.database_path / rf
                 folder = relative_filename_to_folder(rf)
-                if folder == tuple([get_inbox_name(self.account)]):
+                if folder == (get_inbox_name(self.account),):
                     f.unlink()
                 else:
                     parts = list(f.parts)
