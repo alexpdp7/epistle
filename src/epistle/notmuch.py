@@ -98,7 +98,7 @@ class NotmuchMessage:
     @property
     def _relative_filename(self) -> pathlib.Path:
         rfs = self._relative_filenames
-        assert len(rfs) == 1
+        assert len(rfs) == 1, f"found non-one files {rfs}"
         return rfs[0]
 
     @property
