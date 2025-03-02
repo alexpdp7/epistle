@@ -97,13 +97,13 @@ class Cmd(cmd.Cmd):
             assert False, f"don't know what to do with {meta}"
 
     def do_archive(self, arg):
-        message = self._get_message_from_arg(arg)
-        message.archive()
+        for message in self._get_messages_from_arg(arg):
+            message.archive()
         self.do_list(None)
 
     def do_delete(self, arg):
-        message = self._get_message_from_arg(arg)
-        message.delete()
+        for message in self._get_messages_from_arg(arg):
+            message.delete()
         self.do_list(None)
 
     def do_quit(self, _arg):
@@ -126,6 +126,10 @@ class Cmd(cmd.Cmd):
         assert re.match(r"\d+$", arg), f"{arg} should be a number"
         index = int(arg) - 1
         return self.messages[index]
+
+    def _get_messages_from_arg(self, arg):
+        assert re.match(r"^[\d\s]+$", arg), f"{arg} should numbers separated by whitespace"
+        return [self.messages[int(m)-1] for m in arg.split()]
 
 
 def read(_args):
