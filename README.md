@@ -56,6 +56,7 @@ epistle read
 
 * `list` lists emails (currently, only the inbox).
 * `read n` or `n` reads the nth message (does not mark as read yet).
+  You can specify multiple messages separated with spaces.
 * `cat_attachment n p` displays the `p` attachment of the nth message using `libreoffice --cat` or `pdftotext`.
   Reading a message displays the attachment ids.
 * `delete n` or `archive n` delete or archive the nth message (marking as read).
